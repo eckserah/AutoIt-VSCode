@@ -82,20 +82,7 @@ module.exports = languages.registerCompletionItemProvider({ language: 'autoit', 
             }
         }
 
-        var pattern = null;
-        while (pattern = _funcPattern.exec(text)) {
-            var funcName = pattern[1];
-            if (!added[funcName]) {
-                added[funcName] = true;
-                result.push(createNewCompletionItem(CompletionItemKind.Function, funcName));
-            }
-        }
-
-        // collect the includes of the document
-        var pattern = null
-        while (pattern = _includePattern.exec(text)) {
-            includesCheck.push(pattern[1])
-        }
+        includesCheck = collectRecursiveIncludes(document, text, includesCheck);        
 
         // Redo the include collecting if the includes are different
         if (!arraysMatch(includesCheck, currentIncludeFiles)) {
@@ -144,20 +131,9 @@ function getIncludeData(fileName) {
     // console.log(fileName)
     const _includeFuncPattern = /^(?=\S)(?!;~\s)Func\s+(\w+)\s*\(/gm
     var functions = []
-    var filePath = ""
+    var fileText = getIncludeText(fileName);
 
-    if (fileName.charAt(1) == ':') {
-        filePath = fileName
-    } else {
-        filePath = path.normalize(path.dirname(window.activeTextEditor.document.fileName) + 
-        ((fileName.charAt(0) == '\\' || fileName.charAt(0) == '\/') ? '' : '\\') +
-        fileName)
-    }
-    filePath = filePath.charAt(0).toUpperCase() + filePath.slice(1)
-    
     var pattern = null
-    var fileData = fs.readFileSync(filePath)
-    var fileText = fileData.toString()
 
     while(pattern = _includeFuncPattern.exec(fileText)) {
             functions.push(pattern[1])
@@ -188,4 +164,50 @@ function arraysMatch(arr1, arr2) {
     } else {
         return false
     }
+}
+
+function collectRecursiveIncludes(doc, text, includesCheck, currentPath = "") {
+    // collect the includes of the document
+    const _includePattern = /^\s+#include\s"(.+)"/gm
+    var pattern = null
+    if (currentPath == "") {
+        currentPath = path.normalize(path.dirname(doc.fileName) + "\\")
+    }
+    while (pattern = _includePattern.exec(text)) {
+        var includeName = pattern[1];
+        var filePath = getFilePath(includeName, currentPath);
+        console.log("filepath: " + filePath);
+        if (includeName.indexOf('\/') != -1)
+            includeName = includeName.substr(includeName.lastIndexOf('\/')+1)
+        var fullFilePath = filePath + includeName;
+        if (includesCheck.indexOf(fullFilePath) == -1) {
+            console.log("fullfilepath: " + fullFilePath)
+            includesCheck.push(fullFilePath)
+            var dataFromInclude = getIncludeText(fullFilePath);
+            var recursedIncludes = collectRecursiveIncludes(doc,dataFromInclude, includesCheck, filePath);
+            includesCheck.concat(recursedIncludes);
+        }
+    }
+
+    return includesCheck;
+}
+
+function getIncludeText(fileName) {
+    console.log(fileName)    
+    return fs.readFileSync(fileName).toString();
+}
+
+function getFilePath(fileName, currentPath) {
+    var filePath = ""
+
+    if (fileName.charAt(1) == ':') {
+        filePath = fileName
+    } else {
+        filePath = path.normalize(currentPath + 
+        ((fileName.charAt(0) == '\\' || fileName.charAt(0) == '\/') ? '' : '\\')
+        + fileName)
+        filePath = path.normalize(path.dirname(filePath) + ((fileName.charAt(0) == '\\' || fileName.charAt(0) == '\/') ? '' : '\\'))
+    }
+    filePath = filePath.charAt(0).toUpperCase() + filePath.slice(1);
+    return filePath;
 }

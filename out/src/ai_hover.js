@@ -22,7 +22,9 @@ module.exports = languages.registerHoverProvider(
             let hover = hovers[Object.keys(hovers).find(
                 key => key.toLowerCase() === word.toLowerCase()
             )]
-
+            if (hover == null || hover == undefined) {
+                return null;
+            }
             return new Hover(hover)
         }
     }

@@ -126,13 +126,10 @@ function countCommas(code) {
 function getIncludes(doc) { // determines whether includes should be re-parsed or not.
     var text = doc.getText()
     var pattern = null
-    const includePattern = /^\s+#include\s"(.+)"/gm
     const LIBRARY_INCLUDE_PATTERN = /^#include\s+<([\w.]+\.au3)>/gm
     var includesCheck = []
 
-    while (pattern = includePattern.exec(text)) {
-        includesCheck.push(pattern[1])
-    }
+    includesCheck = collectRecursiveIncludes(doc,text,includesCheck)
 
     if (!arraysMatch(includesCheck, currentIncludeFiles)) {
         includes = {}
@@ -162,19 +159,8 @@ function getIncludeData(fileName, doc) {
     // console.log(fileName)
     const _includeFuncPattern = /(?=\S)(?!;~\s)Func\s+((\w+)\((.+)\))/g
     var functions = {}
-    var filePath = ""
-
-    if (fileName.charAt(1) == ':') {
-        filePath = fileName
-    } else {
-        filePath = path.normalize(path.dirname(doc.fileName) + 
-        ((fileName.charAt(0) == '\\' || fileName.charAt(0) == '\/') ? '' : '\\') +
-        fileName)
-    }
-    filePath = filePath.charAt(0).toUpperCase() + filePath.slice(1)
-    
-    var pattern = null
-    var fileData = fs.readFileSync(filePath).toString()
+    var pattern = null;
+    var fileData = getIncludeText(fileName);
     
     while ((pattern = _includeFuncPattern.exec(fileData)) !== null) {
         functions[pattern[2]] = { 
@@ -183,6 +169,8 @@ function getIncludeData(fileName, doc) {
                 params: getParams(pattern[3]) 
             }
     }
+
+
 
     return functions
 }
@@ -239,4 +227,50 @@ function findFilepath(file) {
     }
 
     return 0
+}
+
+function collectRecursiveIncludes(doc, text, includesCheck, currentPath = "") {
+    // collect the includes of the document
+    const _includePattern = /^\s+#include\s"(.+)"/gm
+    var pattern = null
+    if (currentPath == "") {
+        currentPath = path.normalize(path.dirname(doc.fileName) + "\\")
+    }
+    while (pattern = _includePattern.exec(text)) {
+        var includeName = pattern[1];
+        var filePath = getFilePath(includeName, currentPath);
+        console.log("filepath: " + filePath);
+        if (includeName.indexOf('\/') != -1)
+            includeName = includeName.substr(includeName.lastIndexOf('\/')+1)
+        var fullFilePath = filePath + includeName;
+        if (includesCheck.indexOf(fullFilePath) == -1) {
+            console.log("fullfilepath: " + fullFilePath)
+            includesCheck.push(fullFilePath)
+            var dataFromInclude = getIncludeText(fullFilePath);
+            var recursedIncludes = collectRecursiveIncludes(doc,dataFromInclude, includesCheck, filePath);
+            includesCheck.concat(recursedIncludes);
+        }
+    }
+
+    return includesCheck;
+}
+
+function getIncludeText(fileName) {
+    console.log(fileName)    
+    return fs.readFileSync(fileName).toString();
+}
+
+function getFilePath(fileName, currentPath) {
+    var filePath = ""
+
+    if (fileName.charAt(1) == ':') {
+        filePath = fileName
+    } else {
+        filePath = path.normalize(currentPath + 
+        ((fileName.charAt(0) == '\\' || fileName.charAt(0) == '\/') ? '' : '\\')
+        + fileName)
+        filePath = path.normalize(path.dirname(filePath) + ((fileName.charAt(0) == '\\' || fileName.charAt(0) == '\/') ? '' : '\\'))
+    }
+    filePath = filePath.charAt(0).toUpperCase() + filePath.slice(1);
+    return filePath;
 }

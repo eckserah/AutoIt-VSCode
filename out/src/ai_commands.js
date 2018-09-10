@@ -1,7 +1,10 @@
 var {
     window,
     Position,
-    workspace
+    workspace,
+    Hover,
+    CompletionItem,
+    CompletionItemKind
 } = require('vscode');
 var launch = require('child_process').execFile;
 const spawn = require('child_process').spawn;
@@ -81,7 +84,6 @@ module.exports = {
         // Launch the AutoIt Wrapper executable with the script's path
         procRunner(aiPath, [wrapperPath, '/ShowGui', '/prod', '/in', thisFile]);
     },
-
 
     tidyScript: () => {
         // Save the file

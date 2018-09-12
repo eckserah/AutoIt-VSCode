@@ -1,7 +1,7 @@
 'use strict'
 
 
-var { languages, CompletionItem, CompletionItemKind } = require('vscode');
+var { languages, CompletionItem, CompletionItemKind, Range } = require('vscode');
 var fs = require('fs');
 var helper = require('./helpers.js');
 var newComp;

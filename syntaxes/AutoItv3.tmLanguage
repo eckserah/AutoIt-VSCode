@@ -32,7 +32,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>(?i:\b(EndWith|With|ByRef|Return|For|to|Next|In|While|WEnd|ExitLoop|Enum|Step|Do|Until|If|Then|else|ElseIf|EndIf|Select|EndSelect|Case|Switch|EndSwitch|ContinueCase)\b)</string>
+			<string>(?i:\b(EndWith|With|ByRef|Return|For|to|Next|In|While|WEnd|ExitLoop|Enum|Step|Do|Until|If|Then|else|ElseIf|EndIf|Select|EndSelect|Case|Switch|EndSwitch|ContinueCase|ContinueLoop)\b)</string>
 			<key>name</key>
 			<string>keyword.control.autoit</string>
 		</dict>
@@ -101,7 +101,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>(?i:\b(True|False)\b)</string>
+			<string>(?i:\b(True|False|Null)\b)</string>
 			<key>name</key>
 			<string>constant.language.autoit</string>
 		</dict>

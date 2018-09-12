@@ -87,7 +87,7 @@ module.exports = {
 
         includesCheck = this.collectRecursiveIncludes(doc,text,includesCheck)
 
-        if (!arraysMatch(includesCheck, currentIncludeFiles)) {
+        if (!this.arraysMatch(includesCheck, currentIncludeFiles)) {
             includes = {}
             for (var i in includesCheck) {
                 var newIncludes = this.getIncludeData(includesCheck[i], isCompletionInfo)

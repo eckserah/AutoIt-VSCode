@@ -11,6 +11,14 @@
 	<key>patterns</key>
 	<array>
 		<dict>
+			<key>begin</key>
+			<string>(?i:#cs)</string>
+			<key>end</key>
+			<string>(?i:#ce).*$</string>
+			<key>name</key>
+			<string>comment.block.cs.autoit</string>
+		</dict>
+		<dict>
 			<key>match</key>
 			<string>(?i:\s*((\${1})\w*))(\.\w+)?</string>
 			<key>name</key>
@@ -44,7 +52,45 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>(?i:\s*#(define|AutoIt3Wrapper_Res_Fileversion|AutoIt3Wrapper_Res_Description|AutoIt3Wrapper_Res_Comment|Region|AutoIt3Wrapper_Icon|AutoIt3Wrapper_Outfile|EndRegion|include-once|include|NoAutoIt3Execute|NoTrayIcon|OnAutoItStartRegister|RequireAdmin|forcedef|forceref|ignorefunc))</string>
+			<string>(?i:\s*#(define|AutoIt3Wrapper_Res_Fileversion|AutoIt3Wrapper_Res_Description|AutoIt3Wrapper_Res_Comment|AutoIt3Wrapper_Icon|AutoIt3Wrapper_Outfile|EndRegion|include-once|NoAutoIt3Execute|NoTrayIcon|OnAutoItStartRegister|RequireAdmin|forcedef|forceref|ignorefunc))</string>
+			<key>name</key>
+			<string>keyword.control.directives.autoit</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>support.type.autoit</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>#(?i:region)\s+(.*)$</string>
+			<key>name</key>
+			<string>keyword.control.directives.autoit</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>support.type.autoit</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.string.begin.import.autoit</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.string.end.import.autoit</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>#(?i:include)\s+((["'&lt;]).*(["'&gt;]))$</string>
 			<key>name</key>
 			<string>keyword.control.directives.autoit</string>
 		</dict>
@@ -59,21 +105,26 @@
 				<key>2</key>
 				<dict>
 					<key>name</key>
-					<string>support.type.autoit</string>
+					<string>constant.numeric.autoit</string>
 				</dict>
 				<key>3</key>
 				<dict>
 					<key>name</key>
-					<string>keyword.control.directives.autoit</string>
+					<string>meta.separator.function.autoit</string>
 				</dict>
 				<key>4</key>
+				<dict>
+					<key>name</key>
+					<string>support.type.autoit</string>
+				</dict>
+				<key>5</key>
 				<dict>
 					<key>name</key>
 					<string>meta.separator.function.autoit</string>
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>#(\b(?i:pragma)\b)(.*)\((.*),</string>
+			<string>(#(?i:pragma))\s+(.*)(\()(.*),</string>
 		</dict>
 		<dict>
 			<key>match</key>
